@@ -23,6 +23,8 @@ import { db } from "@/lib/firebase";
 import { StatusKehadiran, Ucapan } from "@/types";
 import { formatWaktuRelatif } from "@/lib/formatwaktu";
 import SectionHeading from "./SectionHeading";
+import { weddingData } from "@/lib/data";
+import Image from "next/image";
 
 // Nama koleksi Firestore tempat semua RSVP & ucapan disimpan.
 const COLLECTION_NAME = "ucapan";
@@ -274,6 +276,59 @@ export default function RSVPSection() {
             </motion.div>
           ))}
         </AnimatePresence>
+      </div>
+
+      {/* Bagian Amplop Digital / Rekening */}
+      <div className="max-w-md mx-auto mt-12 space-y-4">
+        <h3 className="text-center font-serif text-lg text-sage-900 mb-4">
+          Amplop Digital
+        </h3>
+        <p className="text-center text-xs font-body text-charcoal/70 mb-6">
+          Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Dan jika ingin memberikan tanda kasih, dapat melalui:
+        </p>
+
+        {weddingData.rekening.map((item, index) => (
+          <div 
+            key={index} 
+            className="p-4 border border-gold-300/30 rounded-2xl shadow-sm bg-ivory flex items-center justify-between gap-4"
+          >
+            {/* Logo Bank / DANA */}
+            <div className="relative w-16 h-10 flex-shrink-0 bg-white rounded-lg border border-sage-100 flex items-center justify-center p-1">
+              {item.logo ? (
+                <Image 
+                  src={item.logo} 
+                  alt={item.bank} 
+                  fill 
+                  className="object-contain p-1" 
+                />
+              ) : (
+                <span className="text-xs font-bold text-charcoal">{item.bank}</span>
+              )}
+            </div>
+
+            {/* Info Rekening */}
+            <div className="flex-grow">
+              <h4 className="font-serif font-bold text-sm text-sage-900">{item.bank}</h4>
+              <p className="font-mono text-sm tracking-wider text-charcoal font-semibold my-0.5">
+                {item.nomor}
+              </p>
+              <p className="text-xs text-charcoal/60 uppercase">
+                a.n. {item.atasNama}
+              </p>
+            </div>
+
+            {/* Tombol Salin */}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(item.nomor);
+                alert(`Nomor ${item.bank} berhasil disalin!`);
+              }}
+              className="px-3 py-1.5 text-xs font-medium bg-gold-500 hover:bg-gold-600 text-ivory rounded-xl transition-colors"
+            >
+              Salin
+            </button>
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-center mt-8 text-gold-500">

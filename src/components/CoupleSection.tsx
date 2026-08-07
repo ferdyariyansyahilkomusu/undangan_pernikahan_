@@ -36,7 +36,7 @@ function ProfileCard({ person, delay }: { person: Mempelai; delay: number }) {
         {person.anakKe}
       </p>
       <p className="font-body text-sm text-charcoal/70 mt-3 leading-relaxed max-w-[220px]">
-        Putra/putri dari Bapak {person.namaAyah} <br /> &amp; Ibu{" "}
+        {person.sebutan} dari Bapak {person.namaAyah} <br /> &amp; Ibu{" "}
         {person.namaIbu}
       </p>
       {person.instagram && (

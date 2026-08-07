@@ -1,6 +1,7 @@
 export interface Mempelai {
   namaPanggilan: string;
   namaLengkap: string;
+  sebutan?: string; // <-- Ditambahkan agar properti sebutan terbaca
   anakKe: string;
   namaAyah: string;
   namaIbu: string;
@@ -22,6 +23,7 @@ export interface RekeningBank {
   bank: string;
   nomor: string;
   atasNama: string;
+  logo?: string; // <-- Ditambahkan agar properti logo bank/dana terbaca
 }
 
 export interface NarahubungPerson {
@@ -38,6 +40,15 @@ export interface Ucapan {
   status: StatusKehadiran;
   pesan: string;
   waktu: string;
+  createdAtMs?: number;  
+}
+
+export interface StoryMoment {
+  id: string;
+  fotoUrl: string;
+  tanggal: string; // e.g. "Januari 2022"
+  judul: string;   // judul singkat, e.g. "Pertama Bertemu"
+  cerita: string;  // cerita singkat momen ini
 }
 
 export interface WeddingData {
@@ -55,21 +66,4 @@ export interface WeddingData {
     teks: string;
     sumber: string;
   };
-}
-
-export interface Ucapan {
-  id: string;
-  nama: string;
-  status: StatusKehadiran;
-  pesan: string;
-  waktu: string;
-  createdAtMs?: number;  
-}
-
-export interface StoryMoment {
-  id: string;
-  fotoUrl: string;
-  tanggal: string; // e.g. "Januari 2022"
-  judul: string;   // judul singkat, e.g. "Pertama Bertemu"
-  cerita: string;  // cerita singkat momen ini
 }

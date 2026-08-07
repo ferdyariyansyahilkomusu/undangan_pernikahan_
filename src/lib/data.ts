@@ -3,19 +3,21 @@ import { WeddingData } from "@/types";
 export const weddingData: WeddingData = {
   mempelaiPria: {
     namaPanggilan: "Ahmad",
-    namaLengkap: "Ahmad Akhir Hasibuan, S.Sos., Gr.",
+    sebutan : "Putra",
+    namaLengkap: "Ahmad Akhir HSB, S.Sos., Gr.",
     anakKe: "Putra Keenam",
-    namaAyah: "Bapak Parlindungan Hasibuan",
-    namaIbu: "Ibu Timro Harahap",
+    namaAyah: "Parlindungan Hasibuan",
+    namaIbu: "Timro Harahap",
     fotoUrl: "/images/ahmadakhir.jpeg",
     instagram: "AhmadAkhirhasibuan",
   },
   mempelaiWanita: {
     namaPanggilan: "Atia",
     namaLengkap: "Atia Ramadani, S.Pd",
+    sebutan: "Putri",
     anakKe: "Putri kedua",
-    namaAyah: "Bapak Fahrul",
-    namaIbu: "Ibu Dara Ayu Nasution",
+    namaAyah: "Fahrul",
+    namaIbu: "Dara Ayu Nasution",
     fotoUrl: "/images/atia.jpeg",
     instagram: "Atia.ramadani96",
   },
@@ -43,8 +45,18 @@ export const weddingData: WeddingData = {
     mapsUrl: "https://maps.app.goo.gl/karNKk6xDH2SWwNb7",
   },
   rekening: [
-    { bank: "BNI", nomor: "387266517", atasNama: "AHMAD AKHIR HASIBUAN" },
-    { bank: "Dana", nomor: "082276583363", atasNama: "AHMAD AKHIR HSB" },
+    { 
+      bank: "Bank BNI", 
+      nomor: "387266517", 
+      atasNama: "AHMAD AKHIR HASIBUAN",
+      logo: "/images/bni.png" // Path untuk logo BNI
+    },
+    { 
+      bank: "DANA", 
+      nomor: "082276583363", 
+      atasNama: "AHMAD AKHIR HSB",
+      logo: "/images/Dana-logo.png" // Path untuk logo DANA
+    },
   ],
   narahubung: [
     {
