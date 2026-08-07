@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // <-- 1. Tambahkan import ini
+import { getFirestore } from "firebase/firestore";
+// (Analytics dihapus agar tidak error di server Vercel)
 
 const firebaseConfig = {
   apiKey: "AIzaSyA792i_-ktN0KLo9hfVMfKVDCUiMN56zKk",
@@ -13,9 +13,8 @@ const firebaseConfig = {
   measurementId: "G-7LL3E621T6"
 };
 
-// Initialize Firebase
+// Initialize Firebase (Tanpa Analytics)
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-// 2. Inisialisasi dan export db
+// Export db untuk Firestore
 export const db = getFirestore(app);
