@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fbf6ee;
+  color: #3a362f;
+  overflow-x: hidden;
+}
+
+/* Lock body scroll while the cover is showing */
+body.invitation-locked {
+  height: 100vh;
+  overflow: hidden;
+}
+
+::selection {
+  background-color: #c9a15a;
+  color: #fbf6ee;
+}
+
+/* Thin gold divider used across sections */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c9a15a, transparent);
+}
+
+/* Section heading eyebrow label */
+.eyebrow {
+  letter-spacing: 0.35em;
+}
+
+/* Subtle paper-grain texture overlay for the ivory background */
+.bg-grain {
+  background-image: radial-gradient(#c9a15a 0.5px, transparent 0.5px);
+  background-size: 18px 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
