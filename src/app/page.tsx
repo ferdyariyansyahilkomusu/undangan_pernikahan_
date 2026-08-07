@@ -12,6 +12,7 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import MusicPlayer, { MusicPlayerHandle } from "@/components/MusicPlayer";
 import { weddingData } from "@/lib/data";
+import LoveStorySection from "@/components/LoveStorySection";
 
 export default function Home() {
   const [isOpened, setIsOpened] = useState(false);
@@ -55,6 +56,7 @@ export default function Home() {
         pria={weddingData.mempelaiPria}
         wanita={weddingData.mempelaiWanita}
       />
+      <LoveStorySection moments={weddingData.loveStory} /> 
       <EventSection data={weddingData} />
       <GiftSection rekening={weddingData.rekening} />
       <RSVPSection />

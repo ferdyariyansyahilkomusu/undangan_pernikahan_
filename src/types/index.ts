@@ -50,8 +50,26 @@ export interface WeddingData {
   resepsi: DetailAcara;
   rekening: RekeningBank[];
   narahubung: NarahubungPerson[];
+  loveStory: StoryMoment[];
   quote: {
     teks: string;
     sumber: string;
   };
+}
+
+export interface Ucapan {
+  id: string;
+  nama: string;
+  status: StatusKehadiran;
+  pesan: string;
+  waktu: string;
+  createdAtMs?: number;  
+}
+
+export interface StoryMoment {
+  id: string;
+  fotoUrl: string;
+  tanggal: string; // e.g. "Januari 2022"
+  judul: string;   // judul singkat, e.g. "Pertama Bertemu"
+  cerita: string;  // cerita singkat momen ini
 }

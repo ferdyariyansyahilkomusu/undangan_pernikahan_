@@ -1,55 +1,108 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, MessageCircleHeart, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Send,
+  MessageCircleHeart,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
+  Timestamp,
+  limit,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { StatusKehadiran, Ucapan } from "@/types";
+import { formatWaktuRelatif } from "@/lib/formatwaktu";
 import SectionHeading from "./SectionHeading";
 
-const initialUcapan: Ucapan[] = [
-  {
-    id: "1",
-    nama: "Dewi & Fajar",
-    status: "Hadir",
-    pesan: "Selamat menempuh hidup baru! Semoga sakinah, mawaddah, warahmah.",
-    waktu: "2 hari lalu",
-  },
-  {
-    id: "2",
-    nama: "Tante Ida",
-    status: "Hadir",
-    pesan: "Bahagia sekali mendengar kabar ini, semoga langgeng ya nak.",
-    waktu: "5 hari lalu",
-  },
-];
+// Nama koleksi Firestore tempat semua RSVP & ucapan disimpan.
+const COLLECTION_NAME = "ucapan";
 
 export default function RSVPSection() {
   const [nama, setNama] = useState("");
   const [status, setStatus] = useState<StatusKehadiran>("Hadir");
   const [pesan, setPesan] = useState("");
-  const [daftarUcapan, setDaftarUcapan] = useState<Ucapan[]>(initialUcapan);
+  const [daftarUcapan, setDaftarUcapan] = useState<Ucapan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  // Dengarkan koleksi "ucapan" secara real-time — begitu ada RSVP baru
+  // (dari siapa pun, di perangkat mana pun), daftar ini langsung ter-update
+  // tanpa perlu refresh halaman.
+  useEffect(() => {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data: Ucapan[] = snapshot.docs.map((doc) => {
+          const d = doc.data();
+          const createdAtMs =
+            (d.createdAt as Timestamp | undefined)?.toMillis() ?? Date.now();
+          return {
+            id: doc.id,
+            nama: d.nama,
+            status: d.status,
+            pesan: d.pesan,
+            waktu: formatWaktuRelatif(createdAtMs),
+            createdAtMs,
+          };
+        });
+        setDaftarUcapan(data);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Gagal memuat ucapan:", error);
+        setErrorMsg(
+          "Gagal memuat daftar ucapan. Periksa koneksi atau konfigurasi Firebase."
+        );
+        setIsLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nama.trim() || !pesan.trim()) return;
+    if (!nama.trim() || !pesan.trim() || isSubmitting) return;
 
-    // NOTE: Ini menyimpan data hanya secara lokal (client-side).
-    // Untuk produksi, hubungkan ke backend/Firebase/Google Sheets API
-    // agar RSVP tersimpan permanen dan dapat dipantau panitia.
-    const newUcapan: Ucapan = {
-      id: Date.now().toString(),
-      nama: nama.trim(),
-      status,
-      pesan: pesan.trim(),
-      waktu: "Baru saja",
-    };
+    setIsSubmitting(true);
+    setErrorMsg("");
 
-    setDaftarUcapan([newUcapan, ...daftarUcapan]);
-    setNama("");
-    setPesan("");
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2500);
+    try {
+      await addDoc(collection(db, COLLECTION_NAME), {
+        nama: nama.trim(),
+        status,
+        pesan: pesan.trim(),
+        createdAt: serverTimestamp(),
+      });
+
+      setNama("");
+      setPesan("");
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 2500);
+    } catch (error) {
+      console.error("Gagal mengirim ucapan:", error);
+      setErrorMsg("Gagal mengirim ucapan. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,7 +131,8 @@ export default function RSVPSection() {
             onChange={(e) => setNama(e.target.value)}
             placeholder="Nama Anda"
             required
-            className="w-full rounded-xl border border-sage-100 bg-white/70 px-4 py-2.5 text-sm font-body text-charcoal outline-none focus:border-gold-500 transition-colors"
+            disabled={isSubmitting}
+            className="w-full rounded-xl border border-sage-100 bg-white/70 px-4 py-2.5 text-sm font-body text-charcoal outline-none focus:border-gold-500 transition-colors disabled:opacity-60"
           />
         </div>
 
@@ -90,7 +144,8 @@ export default function RSVPSection() {
             <button
               type="button"
               onClick={() => setStatus("Hadir")}
-              className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-body border transition-colors ${
+              disabled={isSubmitting}
+              className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-body border transition-colors disabled:opacity-60 ${
                 status === "Hadir"
                   ? "bg-sage-600 border-sage-600 text-ivory"
                   : "border-sage-100 text-charcoal/70"
@@ -102,7 +157,8 @@ export default function RSVPSection() {
             <button
               type="button"
               onClick={() => setStatus("Tidak Hadir")}
-              className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-body border transition-colors ${
+              disabled={isSubmitting}
+              className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-body border transition-colors disabled:opacity-60 ${
                 status === "Tidak Hadir"
                   ? "bg-charcoal border-charcoal text-ivory"
                   : "border-sage-100 text-charcoal/70"
@@ -123,17 +179,28 @@ export default function RSVPSection() {
             onChange={(e) => setPesan(e.target.value)}
             placeholder="Tuliskan ucapan dan doa terbaik Anda..."
             required
+            disabled={isSubmitting}
             rows={3}
-            className="w-full rounded-xl border border-sage-100 bg-white/70 px-4 py-2.5 text-sm font-body text-charcoal outline-none focus:border-gold-500 transition-colors resize-none"
+            className="w-full rounded-xl border border-sage-100 bg-white/70 px-4 py-2.5 text-sm font-body text-charcoal outline-none focus:border-gold-500 transition-colors resize-none disabled:opacity-60"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-gold-500 hover:bg-gold-600 transition-colors text-ivory py-3 text-sm font-body tracking-wide"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-2 rounded-full bg-gold-500 hover:bg-gold-600 transition-colors text-ivory py-3 text-sm font-body tracking-wide disabled:opacity-70"
         >
-          <Send size={16} />
-          Kirim Ucapan
+          {isSubmitting ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Mengirim...
+            </>
+          ) : (
+            <>
+              <Send size={16} />
+              Kirim Ucapan
+            </>
+          )}
         </button>
 
         <AnimatePresence>
@@ -144,7 +211,17 @@ export default function RSVPSection() {
               exit={{ opacity: 0, height: 0 }}
               className="text-center text-sage-600 text-xs font-body mt-3"
             >
-              Terima kasih! Ucapan Anda telah terkirim.
+              Terima kasih! Ucapan Anda telah tersimpan.
+            </motion.p>
+          )}
+          {errorMsg && (
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="text-center text-red-500 text-xs font-body mt-3"
+            >
+              {errorMsg}
             </motion.p>
           )}
         </AnimatePresence>
@@ -152,6 +229,19 @@ export default function RSVPSection() {
 
       {/* Wishes list */}
       <div className="max-w-md mx-auto mt-8 space-y-3 max-h-80 overflow-y-auto pr-1">
+        {isLoading && (
+          <div className="flex items-center justify-center gap-2 text-sage-600 text-sm font-body py-6">
+            <Loader2 size={16} className="animate-spin" />
+            Memuat ucapan...
+          </div>
+        )}
+
+        {!isLoading && daftarUcapan.length === 0 && !errorMsg && (
+          <p className="text-center text-charcoal/50 text-sm font-body py-6">
+            Jadilah yang pertama mengirim ucapan!
+          </p>
+        )}
+
         <AnimatePresence initial={false}>
           {daftarUcapan.map((u) => (
             <motion.div
